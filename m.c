@@ -8,6 +8,7 @@ int main(int argc, char **argv){
   char *json_file_contents;
   long json_file_size;
   FILE *json_file = fopen("/home/jason/m.cfg", "rb");
+
   fseek(json_file, 0, SEEK_END);
   json_file_size = ftell(json_file);
   rewind(json_file);
@@ -16,11 +17,11 @@ int main(int argc, char **argv){
   fclose(json_file);
 
   char arr_menu_keys[100][100];
-  char arr_menu_commands[100][100];
+  char arr_menu_commands[100][1000];
   char user_menu_selection[1];
   int command_count = 0;
   int commandline_arg;
-  const char *menu_section_to_display = "topmenuitems";
+  char *menu_section_to_display = "topmenuitems";
   char command_arg_selection[1] = {-1};
   static struct option long_options[] = {
     {"menuname", required_argument, 0, 1001 },
@@ -47,7 +48,6 @@ int main(int argc, char **argv){
   cJSON *json_root = cJSON_Parse(json_file_contents);
   cJSON *json_menu = cJSON_GetObjectItem(json_root, menu_section_to_display);
   int menu_item_count = cJSON_GetArraySize(json_menu);
-
   printf("########################\n");
   for (int i = 0; i < menu_item_count; i++) {
     cJSON *json_menu_item = cJSON_GetArrayItem(json_menu, i);
@@ -62,18 +62,20 @@ int main(int argc, char **argv){
   }
   printf("########################\n");
   putchar('\n');
-
+  fflush(stdout);
   if (command_arg_selection[0] != -1){
     user_menu_selection[0] = command_arg_selection[0];
   }else{
     // ask for a letter from the menu (Ctrl-C and Enter allowed to cancel)
     scanf("%2000[^\n]", user_menu_selection);
+    fflush(stdout);
   }
 
   for(int j = 1; j < command_count+1; ++j){
     int is_selection = strcmp(arr_menu_keys[j], user_menu_selection);
     if (is_selection == 0){
       // run the system command assosiated with the menu item chosen
+      //printf("Running: %s\n", arr_menu_commands[j]);
       system(arr_menu_commands[j]);
       break;
     }
